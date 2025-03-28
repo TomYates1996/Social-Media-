@@ -22,13 +22,15 @@
         <div class="users-posts">
             <h1>Posts</h1>
             <ul class="posts-container" v-if="posts.length > 0">
-                <PostItem v-for="post in posts" :key="post.id" :post="post"/>
+                <PostItem v-for="post in storedPosts" :key="post.id" :post="post" @viewPost="viewPost"/>
             </ul>
             <div v-if="posts.length === 0">
                 <p>No posts available.</p>
             </div>
         </div>
     </div>
+
+    <FullScreenPost v-if="clickedPost !== null" :post="clickedPost" @closePost="closePost" @deletedPost="deletedPost"/>
     
 </template>
   
@@ -36,6 +38,7 @@
 import axios from 'axios';
 import { Head, Link } from '@inertiajs/vue3';
 import PostItem from '@/components/custom/PostItem.vue';
+import FullScreenPost from '@/components/custom/FullScreenPost.vue';
 
 
   export default {
@@ -48,11 +51,17 @@ import PostItem from '@/components/custom/PostItem.vue';
     data() {
         return {
             following: this.isFollowing,
+            clickedPost: null,
+            storedPosts: [],
         }
     },
     components: {
         Link,
         PostItem,
+        FullScreenPost,
+    },
+    created() {
+        this.storedPosts = this.posts;
     },
     methods: {
         toggleFollow() {
@@ -75,7 +84,17 @@ import PostItem from '@/components/custom/PostItem.vue';
                     console.error('Error following user:', error);
                 });
             }
-        }
+        },
+        viewPost(emittedPost) {
+            this.clickedPost = emittedPost;
+        },
+        closePost() {
+            this.clickedPost = null;
+        },
+        deletedPost(postId) {
+            this.storedPosts = this.storedPosts.filter(post => post.id !== postId);
+            this.clickedPost = null;
+        },
     }
   };
   </script>

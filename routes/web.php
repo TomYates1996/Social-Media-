@@ -22,6 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/{username}', [ProfileController::class, 'show']);
     Route::post('/profile/{username}/follow', [ProfileController::class, 'follow']);
     Route::post('/profile/{username}/unfollow', [ProfileController::class, 'unfollow']);
+    Route::delete('/delete/{id}', [PostController::class, 'destroy']);
     // Route::get('/posts/followed', [PostController::class, 'getFollowedPosts']);
 });
 

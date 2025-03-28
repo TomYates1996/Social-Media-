@@ -71,4 +71,18 @@ class PostController extends Controller
         ]);
     }
 
+    public function destroy($id)
+    {
+        $post = Post::findOrFail($id);
+        $authUser = auth()->user();
+        if ($authUser->username == $post->username) {
+            $post->delete(); 
+            return response()->json(['message' => 'Post deleted successfully.']);
+        } else {
+            return;
+        }
+
+
+    }
+
 }

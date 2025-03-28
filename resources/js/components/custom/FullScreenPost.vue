@@ -7,16 +7,19 @@
                 <h3>{{ post.title }}</h3>
                 <p>{{ post.body }}</p>
                 <Link 
+                    v-if="post.username !== $page.props.auth.user.username"
                     :href="'/profile/' + post.username"
                     method="get"
                     class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
                 >{{ post.username }}</Link>
+                <button v-if="post.username === $page.props.auth.user.username" v-on:click="deletePost(post.id)">Delete</button>
             </div>
         </li>
     </div>
 </template>
 <script>
 import { Link } from '@inertiajs/vue3';
+import axios from 'axios';
 
 export default {
     components: {
@@ -29,6 +32,16 @@ export default {
         closePost() {
             this.$emit('closePost');
         },
+        deletePost(postId) {
+        axios.delete(`/delete/${postId}`)
+            .then(response => {
+                console.log(response.data.message); 
+                this.$emit('deletedPost', postId);
+            })
+            .catch(error => {
+                console.error('There was an error deleting the post:', error);
+            });
+        }
     },
 }
 </script>
