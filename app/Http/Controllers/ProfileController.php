@@ -14,13 +14,18 @@ class ProfileController extends Controller
     public function show($username)
     {
         $user = User::where('username', $username)->firstOrFail();
+
         $posts = Post::where('username', $username)->get();
         $isFollowing = auth()->check() ? auth()->user()->isFollowing($user) : false;
+        $followers = $user->followers; 
+        $followerCount = $followers->count();
 
         $userActual = Auth::user();
 
         return Inertia::render('Profile', [
             'user' => $user,
+            'followers' => $followers,
+            'followerCount' => $followerCount,
             'posts' => $posts,
             'isFollowing' => $isFollowing,
         ]);
@@ -56,5 +61,15 @@ class ProfileController extends Controller
         $authUser->following()->detach($userToUnfollow);
 
         return response()->json(['message' => 'You have unfollowed this user.']);
+    }
+
+    // Settings page 
+    public function settings()
+    {
+        $user = Auth::user();
+
+        return Inertia::render('Settings', [
+            'user' => $user,
+        ]);
     }
 }

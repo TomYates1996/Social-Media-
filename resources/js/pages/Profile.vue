@@ -7,6 +7,14 @@
         >
             Home
         </Link>
+    <Link 
+            v-if="$page.props.auth.user.username === user.username"
+            href="/settings"
+            method="get"
+            class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+        >
+            Settings
+        </Link>
     <div class="page-wrap">
         <div>
         <h1 v-if="user.name.length < 0">{{ user.name }}'s Profile</h1>
@@ -19,6 +27,7 @@
             {{ following ? 'Unfollow' : 'Follow' }}
         </button>
         </div>
+        <Followers :count="followerCount" :followers="followers"/>
         <div class="users-posts">
             <h1>Posts</h1>
             <ul class="posts-container" v-if="posts.length > 0">
@@ -39,6 +48,7 @@ import axios from 'axios';
 import { Head, Link } from '@inertiajs/vue3';
 import PostItem from '@/components/custom/PostItem.vue';
 import FullScreenPost from '@/components/custom/FullScreenPost.vue';
+import Followers from '@/components/custom/Followers.vue';
 
 
   export default {
@@ -46,6 +56,8 @@ import FullScreenPost from '@/components/custom/FullScreenPost.vue';
       user: Object,
       posts: Object,
       isFollowing: Boolean,
+      followers: Array,
+      followerCount: Number,
       authUser: Object,
     },
     data() {
@@ -59,6 +71,7 @@ import FullScreenPost from '@/components/custom/FullScreenPost.vue';
         Link,
         PostItem,
         FullScreenPost,
+        Followers,
     },
     created() {
         this.storedPosts = this.posts;
