@@ -23,6 +23,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/{username}/follow', [ProfileController::class, 'follow']);
     Route::post('/profile/{username}/unfollow', [ProfileController::class, 'unfollow']);
     Route::delete('/delete/{id}', [PostController::class, 'destroy']);
+    Route::post('/posts/{post}/toggle-like', [PostController::class, 'toggleLike']);
+    Route::post('/posts/{post}/get-like', [PostController::class, 'getLikes']);
 });
 
 Route::get('check-username/{username}', [RegisteredUserController::class, 'checkUsername']);

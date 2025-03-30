@@ -27,7 +27,7 @@
             {{ following ? 'Unfollow' : 'Follow' }}
         </button>
         </div>
-        <Followers :count="followerCount" :followers="followers"/>
+        <Followers :count="processCount" :followers="followersProcessed"/>
         <div class="users-posts">
             <h1>Posts</h1>
             <ul class="posts-container" v-if="posts.length > 0">
@@ -65,6 +65,8 @@ import Followers from '@/components/custom/Followers.vue';
             following: this.isFollowing,
             clickedPost: null,
             storedPosts: [],
+            followersProcessed: [],
+            processCount: 0,
         }
     },
     components: {
@@ -75,6 +77,8 @@ import Followers from '@/components/custom/Followers.vue';
     },
     created() {
         this.storedPosts = this.posts;
+        this.followersProcessed = this.followers;
+        this.processCount = this.followerCount;
     },
     methods: {
         toggleFollow() {
@@ -83,6 +87,9 @@ import Followers from '@/components/custom/Followers.vue';
                 axios.post(`/profile/${this.user.username}/unfollow`)
                 .then(() => {
                     this.following = false;
+                    this.followersProcessed = this.followers.filter(user => user.id !== this.$page.props.auth.user.id);
+                    this.processCount = this.processCount - 1;
+                    
                 })
                 .catch(error => {
                     console.error('Error unfollowing user:', error);
@@ -92,6 +99,8 @@ import Followers from '@/components/custom/Followers.vue';
                 axios.post(`/profile/${this.user.username}/follow`)
                 .then(() => {
                     this.following = true;
+                    this.followersProcessed.push(this.$page.props.auth.user);
+                    this.processCount = this.processCount + 1;
                 })
                 .catch(error => {
                     console.error('Error following user:', error);

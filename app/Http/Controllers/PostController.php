@@ -82,8 +82,34 @@ class PostController extends Controller
         } else {
             return;
         }
+    }
 
+    public function toggleLike($postId)
+    {
+        $post = Post::findOrFail($postId);
+        $user = Auth::user();
 
+        if ($user->likedPosts->contains($post)) {
+            $user->likedPosts()->detach($post);
+        } else {
+            $user->likedPosts()->attach($post);
+        }
+
+        return response()->json([
+            'likes_count' => $post->likers()->count(),
+            'is_liked' => $user->likedPosts->contains($post),
+        ]);
+    }
+
+    public function getLikes($postId) 
+    {
+        $post = Post::findOrFail($postId);
+        $user = Auth::user();
+
+        return response()->json([
+            'is_liked' => $user->likedPosts->contains($post),
+            'likes_count' => $post->likers()->count(),
+        ]);
     }
 
 }
