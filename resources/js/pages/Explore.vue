@@ -1,31 +1,28 @@
 <template>
     <div class="page-wrap">
-        <Link 
-            href="/dashboard"
-            method="get"
-            class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-        >My Feed</Link>
-        <h1>See the most recent posts</h1>
-        <ul class="posts-container" v-if="posts.length > 0">
-            <PostItem v-for="post in posts" :key="post.id" :post="post" @viewPost="viewPost"/>
-        </ul>
-        <div v-if="posts.length === 0">
-            <p>No posts available.</p>
-        </div>
+        <PostsContainer :storedPosts="localPosts" @clickedPost="closePost" @deletedPost="deletedPost" @viewPost="viewPost"/>
     </div>
-    <FullScreenPost v-if="clickedPost !== null" :post="clickedPost" @closePost="closePost"/>
+    <OptionsBar :page="1" :user="$page.props.auth.user"/>
+    <!-- <CreatePost v-if="showCreate" @showCreate="showCreatePost"/> -->
+    <FullScreenPost v-if="clickedPost !== null" :post="clickedPost" @closePost="closePost" @deletedPost="deletedPost"/>
 </template>
 
 <script>
 import { Head, Link } from '@inertiajs/vue3';
 import PostItem from '@/components/custom/PostItem.vue';
 import FullScreenPost from '@/components/custom/FullScreenPost.vue';
+import OptionsBar from '../components/custom/OptionsBar.vue';
+import CreatePost from '@/components/custom/CreatePost.vue';
+import PostsContainer from '@/components/custom/PostsContainer.vue';
 
 export default {
     components: {
         Link,
         PostItem,
         FullScreenPost,
+        OptionsBar,
+        CreatePost,
+        PostsContainer,
     },
     props: {
         posts: Array,
@@ -33,14 +30,25 @@ export default {
     data () {
         return {
             clickedPost: null,
+            localPosts: [],
+            showCreate : false,
         }
     },
+    created() {
+        this.localPosts = this.posts;
+    },
     methods: {
+        showCreatePost(){
+            this.showCreate = !this.showCreate;
+        },
         viewPost(emittedPost) {
             this.clickedPost = emittedPost;
         },
         closePost() {
-            console.log('hello');
+            this.clickedPost = null;
+        },
+        deletedPost(postId) {
+            this.localPosts = this.localPosts.filter(post => post.id !== postId);
             this.clickedPost = null;
         },
     },

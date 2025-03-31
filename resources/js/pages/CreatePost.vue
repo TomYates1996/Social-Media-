@@ -28,13 +28,14 @@
             </form>
         </div>
     </div>
-    <OptionsBar @showCreatePost="showCreatePost" :page="4" :user="this.$page.props.auth.user" />
+
+    <OptionsBar :page="4" :user="this.$page.props.auth.user" />
 </template>
 
 <script>
 import { useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
-import OptionsBar from './OptionsBar.vue';
+import OptionsBar from '@/components/custom/OptionsBar.vue';
 
 export default {
     setup(){
@@ -66,8 +67,7 @@ export default {
         submitForm (form) {
             form.post('/create', {
                 onSuccess: () => {
-                    form.reset(),
-                    this.$emit('showCreate');
+                    form.reset()
                 },                
                 // Optionally handle errors
                 onError: (errors) => {

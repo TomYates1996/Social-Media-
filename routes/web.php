@@ -17,6 +17,7 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [PostController::class, 'index'])->name('dashboard');
+    Route::get('/post/create', [PostController::class, 'loadCreate']);
     Route::post('create', [PostController::class, 'store']);
     Route::get('explore', [PostController::class, 'getAllPosts']);
     Route::get('/profile/{username}', [ProfileController::class, 'show']);

@@ -1,54 +1,23 @@
 <template>
-    <Link 
-            v-if="$page.props.auth.user"
-            href="/dashboard"
-            method="get"
-            class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-        >
-            Home
-        </Link>
-    <Link 
-            v-if="$page.props.auth.user.username === user.username"
-            href="/settings"
-            method="get"
-            class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-        >
-            Settings
-        </Link>
-    <div class="page-wrap">
-        <div>
-        <h1 v-if="user.name.length < 0">{{ user.name }}'s Profile</h1>
-        <p>{{ user.username }}</p>
-        <button
-            v-if="$page.props.auth.user.username !== user.username"
-            @click="toggleFollow"
-            :class="{ 'bg-blue-500': following, 'bg-gray-500': !following }"
-            >
-            {{ following ? 'Unfollow' : 'Follow' }}
-        </button>
-        </div>
-        <Followers :count="processCount" :followers="followersProcessed"/>
-        <div class="users-posts">
-            <h1>Posts</h1>
-            <ul class="posts-container" v-if="posts.length > 0">
-                <PostItem v-for="post in storedPosts" :key="post.id" :post="post" @viewPost="viewPost"/>
-            </ul>
-            <div v-if="posts.length === 0">
-                <p>No posts available.</p>
-            </div>
-        </div>
-    </div>
 
+    <div class="page-wrap">
+        <ProfileBanner :following="following" :followingCount="followingCount" :isFollowing="isFollowing" :user="user" :count="followerCount" :followers="followers"/>
+        <PostsContainer :storedPosts="storedPosts" @clickedPost="closePost" @deletedPost="deletedPost" @viewPost="viewPost"/>
+        
+    </div>
+    
+    <OptionsBar :page="2" :user="user" />
     <FullScreenPost v-if="clickedPost !== null" :post="clickedPost" @closePost="closePost" @deletedPost="deletedPost"/>
     
 </template>
   
 <script>
-import axios from 'axios';
 import { Head, Link } from '@inertiajs/vue3';
 import PostItem from '@/components/custom/PostItem.vue';
 import FullScreenPost from '@/components/custom/FullScreenPost.vue';
-import Followers from '@/components/custom/Followers.vue';
+import PostsContainer from '@/components/custom/PostsContainer.vue';
+import OptionsBar from '@/components/custom/OptionsBar.vue';
+import ProfileBanner from '@/components/custom/ProfileBanner.vue';
 
 
   export default {
@@ -59,21 +28,25 @@ import Followers from '@/components/custom/Followers.vue';
       followers: Array,
       followerCount: Number,
       authUser: Object,
+      following: Array,
+      followingCount: Number,
     },
     data() {
         return {
-            following: this.isFollowing,
             clickedPost: null,
             storedPosts: [],
             followersProcessed: [],
             processCount: 0,
+            showCreate : false,
         }
     },
     components: {
         Link,
         PostItem,
         FullScreenPost,
-        Followers,
+        PostsContainer,
+        OptionsBar,
+        ProfileBanner,
     },
     created() {
         this.storedPosts = this.posts;
@@ -81,31 +54,8 @@ import Followers from '@/components/custom/Followers.vue';
         this.processCount = this.followerCount;
     },
     methods: {
-        toggleFollow() {
-            if (this.following) {
-                // Unfollow user
-                axios.post(`/profile/${this.user.username}/unfollow`)
-                .then(() => {
-                    this.following = false;
-                    this.followersProcessed = this.followers.filter(user => user.id !== this.$page.props.auth.user.id);
-                    this.processCount = this.processCount - 1;
-                    
-                })
-                .catch(error => {
-                    console.error('Error unfollowing user:', error);
-                });
-            } else {
-                // Follow user
-                axios.post(`/profile/${this.user.username}/follow`)
-                .then(() => {
-                    this.following = true;
-                    this.followersProcessed.push(this.$page.props.auth.user);
-                    this.processCount = this.processCount + 1;
-                })
-                .catch(error => {
-                    console.error('Error following user:', error);
-                });
-            }
+        showCreatePost(){
+            this.showCreate = !this.showCreate;
         },
         viewPost(emittedPost) {
             this.clickedPost = emittedPost;

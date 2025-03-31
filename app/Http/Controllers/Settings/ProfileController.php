@@ -33,7 +33,7 @@ class ProfileController extends Controller
             $imagePath = $request->file('profile_picture')->store('profile', 'public');
             $imageUrl = asset('storage/' . $imagePath);
         } else {
-            $imageUrl = null;
+            $imageUrl = '/images/default-profile.jpg';
         }
         $request->user()->fill($request->validated());
 

@@ -43,6 +43,12 @@ html {
         --sidebar-accent-foreground: 0 0% 30%;
         --sidebar-border: 0 0% 91%;
         --sidebar-ring: 217.2 91.2% 59.8%;
+
+        /* Custom Variables */
+        --link-colour: #c40202;
+        --primary-colour: #310935;
+        --secondary-colour: #dd9700;
+        --white: #ffffff;
     }
 
     .dark {

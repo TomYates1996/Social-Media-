@@ -5,7 +5,6 @@
             <div class="text-cont">
                 <button class="close" v-on:click="closePost()">X</button>
                 <h3>{{ post.title }}</h3>
-                <p>{{ post.body }}</p>
                 <Link 
                     v-if="post.username !== $page.props.auth.user.username"
                     :href="'/profile/' + post.username"
@@ -13,6 +12,7 @@
                     class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
                 >{{ post.username }}</Link>
                 <button v-if="post.username === $page.props.auth.user.username" v-on:click="deletePost(post.id)">Delete</button>
+                <LikeButton :post="post"/>
             </div>
         </li>
     </div>
@@ -20,10 +20,12 @@
 <script>
 import { Link } from '@inertiajs/vue3';
 import axios from 'axios';
+import LikeButton from './LikeButton.vue';
 
 export default {
     components: {
         Link,
+        LikeButton,
     },
     props: {
         post: Object,
@@ -48,7 +50,7 @@ export default {
 
 <style scoped>
     .neat-wrapper {
-        position: absolute;
+        position: fixed;
         top: 0px;
         left: 0px;
         width: 100%;
@@ -57,12 +59,14 @@ export default {
         justify-content: center;
         align-items: center;
         display: flex;
+        background-color: #0000009a;
         .detail-post-item {
             background-color: #00e1ac;;
             width: 100%;
-            max-width: 900px;
+            max-width: 1400px;
+            height: 100%;
             display: flex;
-            align-items: stretch;
+            flex-direction: column;
             justify-content: center;
             padding: 20px;
             border-radius: 20px;
@@ -72,6 +76,7 @@ export default {
                 aspect-ratio: 1/1;
                 width: 460px;
                 height: 460px;
+                object-fit: cover;
             }
             .text-cont {
                 display: flex;

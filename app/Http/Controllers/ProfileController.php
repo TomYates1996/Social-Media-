@@ -14,11 +14,12 @@ class ProfileController extends Controller
     public function show($username)
     {
         $user = User::where('username', $username)->firstOrFail();
-
-        $posts = Post::where('username', $username)->get();
+        $posts = Post::where('username', $username)->orderBy('created_at', 'desc')->get();
         $isFollowing = auth()->check() ? auth()->user()->isFollowing($user) : false;
         $followers = $user->followers; 
         $followerCount = $followers->count();
+        $following = $user->following;
+        $followingCount = $following->count();
 
         $userActual = Auth::user();
 
@@ -28,6 +29,8 @@ class ProfileController extends Controller
             'followerCount' => $followerCount,
             'posts' => $posts,
             'isFollowing' => $isFollowing,
+            'following' => $following,
+            'followingCount' => $followingCount,
         ]);
     }
 

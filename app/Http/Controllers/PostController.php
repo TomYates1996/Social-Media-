@@ -11,11 +11,10 @@ class PostController extends Controller
 {
     public function store(Request $request)
     {
-        dd($request);
         $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
             'postTitle' => 'required|string|max:255',
-            'postBody' => 'required|string', 
+            'postBody' => 'nullable|string', 
             'location' => 'nullable|string|max:255'
         ]);
 
@@ -31,13 +30,14 @@ class PostController extends Controller
             $user = Auth::user();
             $data = $request->all();
             $data['title'] = $request->postTitle;
-            $data['body'] = $request->postBody;
+            $data['body'] = '';
             $data['image'] = $imageUrl;
             $data['user_id'] = $user['id'];
             $data['username'] = $user['username'];
             $data['location'] = $request->location ?? null;
             $post = Post::create($data);
-            return;
+
+            return $this->index();;
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Image upload failed: ' . $e->getMessage(),
@@ -61,11 +61,17 @@ class PostController extends Controller
         ]);
     }
 
+    public function loadCreate()
+    {
+        return Inertia::render('CreatePost', [
+        ]);
+    }
+
     public function index()
     {
         $authUser = auth()->user();
         $followedUserIds = $authUser->following()->pluck('followed_id');
-        $posts = Post::whereIn('user_id', $followedUserIds)->get();
+        $posts = Post::whereIn('user_id', [$followedUserIds, $authUser->id] )->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Dashboard', [
             'posts' => $posts,  
