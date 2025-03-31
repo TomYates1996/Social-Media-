@@ -65,6 +65,13 @@
     </form>
 
     <OptionsBar :page="3" :user="this.$page.props.auth.user" />
+    <Link 
+    v-if="$page.props.auth.user"
+    href="/logout"
+    method="post"
+    class="option">
+        Logout
+    </Link>
     <DeleteUser />
 
 </template>

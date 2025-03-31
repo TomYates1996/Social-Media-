@@ -14,7 +14,7 @@ class ProfileController extends Controller
     public function show($username)
     {
         $user = User::where('username', $username)->firstOrFail();
-        $posts = Post::where('username', $username)->orderBy('created_at', 'desc')->get();
+        $posts = Post::where('username', $username)->with('comments')->orderBy('created_at', 'desc')->get();
         $isFollowing = auth()->check() ? auth()->user()->isFollowing($user) : false;
         $followers = $user->followers; 
         $followerCount = $followers->count();

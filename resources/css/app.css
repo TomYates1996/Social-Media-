@@ -49,6 +49,7 @@ html {
         --primary-colour: #310935;
         --secondary-colour: #dd9700;
         --white: #ffffff;
+        --black: #000000;
     }
 
     .dark {

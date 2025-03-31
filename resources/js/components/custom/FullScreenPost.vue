@@ -1,18 +1,23 @@
 <template>
-    <div class="neat-wrapper">
+    <div class="wrapper">
         <li class="detail-post-item">
-            <img :src="post.image" alt="">
+            <font-awesome-icon class="close" v-on:click="closePost()" :icon="['fas', 'square-xmark']" />
+            <div class="detail-left">
+                <div class="image-con">
+                    <img :src="post.image" alt="Post Image">
+                    <LikeButton class="like-btn" :post="post"/>
+                </div>
+            </div>
             <div class="text-cont">
-                <button class="close" v-on:click="closePost()">X</button>
                 <h3>{{ post.title }}</h3>
                 <Link 
-                    v-if="post.username !== $page.props.auth.user.username"
+                    v-if="post.username"
                     :href="'/profile/' + post.username"
                     method="get"
-                    class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                >{{ post.username }}</Link>
+                    class="post-username"
+                    >{{ post.username }}</Link>
+                    <Comments :postId="post.id" :comments="post.comments" />
                 <button v-if="post.username === $page.props.auth.user.username" v-on:click="deletePost(post.id)">Delete</button>
-                <LikeButton :post="post"/>
             </div>
         </li>
     </div>
@@ -21,14 +26,20 @@
 import { Link } from '@inertiajs/vue3';
 import axios from 'axios';
 import LikeButton from './LikeButton.vue';
+import Comments from './Comments.vue';
 
 export default {
     components: {
         Link,
         LikeButton,
+        Comments,
     },
     props: {
         post: Object,
+    },
+    created() {
+        console.log(this.post);
+        
     },
     methods: {
         closePost() {
@@ -49,7 +60,7 @@ export default {
 </script>
 
 <style scoped>
-    .neat-wrapper {
+    .wrapper {
         position: fixed;
         top: 0px;
         left: 0px;
@@ -61,17 +72,34 @@ export default {
         display: flex;
         background-color: #0000009a;
         .detail-post-item {
-            background-color: #00e1ac;;
+            position: relative;
+            background-color: var(--primary-colour);
             width: 100%;
             max-width: 1400px;
             height: 100%;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             padding: 20px;
             border-radius: 20px;
-            color: #000000;
+            color: var(--white);
             gap: 20px;
+            .close {
+                position: absolute;
+                top: 0px;
+                right: 0px;
+                height: 40px;
+                width: 40px;
+                color: var(--secondary-colour);
+                font-weight: 900;
+            }
+            .image-con {
+                position: relative;
+                .like-btn {
+                    position: absolute;
+                    top: 0px;
+                    right: 0px;
+                }
+            }
             img {
                 aspect-ratio: 1/1;
                 width: 460px;
@@ -85,15 +113,7 @@ export default {
                 align-items: flex-start;
                 gap: 14px;
                 height: 100%;
-                .close {
-                    position: relative;
-                    margin-left: auto;
-                    background-color: #000000;
-                    height: 30px;
-                    width: 30px;
-                    color: #ffffff;
-                    border-radius: 4px;
-                }
+                
                 h3 {
                     font-size: 30px;
                     font-weight: 700;

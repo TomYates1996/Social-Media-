@@ -26,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/delete/{id}', [PostController::class, 'destroy']);
     Route::post('/posts/{post}/toggle-like', [PostController::class, 'toggleLike']);
     Route::post('/posts/{post}/get-like', [PostController::class, 'getLikes']);
+    Route::post('/posts/{post}/comments', [PostController::class, 'storeComment']);
+    Route::post('/comments/{comment}/toggle-like', [PostController::class, 'toggleLikeComment']);
 });
 
 Route::get('check-username/{username}', [RegisteredUserController::class, 'checkUsername']);

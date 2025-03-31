@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -46,7 +47,8 @@ class PostController extends Controller
     }
     public function getAllPosts()
     {
-        $posts = Post::all();  
+        $posts = Post::with(['comments.user', 'comments.likes'])->orderBy('created_at', 'desc')->get();
+
         return Inertia::render('Explore', [
             'posts' => $posts,  
         ]);
@@ -54,7 +56,7 @@ class PostController extends Controller
 
     public function getProfilePosts()
     {
-        $posts = Post::where('username', $user->username)->get();
+        $posts = Post::where('username', $user->username)->with(['comments.user', 'comments.likes'])->get();
         return Inertia::render('Profile/Show', [
             'user' => $user,
             'posts' => $posts,
@@ -71,7 +73,7 @@ class PostController extends Controller
     {
         $authUser = auth()->user();
         $followedUserIds = $authUser->following()->pluck('followed_id');
-        $posts = Post::whereIn('user_id', [$followedUserIds, $authUser->id] )->orderBy('created_at', 'desc')->get();
+        $posts = Post::whereIn('user_id', $followedUserIds->merge([$authUser->id]))->with(['comments.user', 'comments.likes'])->orderBy('created_at', 'desc')->get();
 
         return Inertia::render('Dashboard', [
             'posts' => $posts,  
@@ -116,6 +118,40 @@ class PostController extends Controller
             'is_liked' => $user->likedPosts->contains($post),
             'likes_count' => $post->likers()->count(),
         ]);
+    }
+
+    public function storeComment(Request $request, $postId)
+    {
+        $request->validate([
+            'comment' => 'required|string|max:255',
+        ]);
+
+        $post = Post::findOrFail($postId);
+        $user = auth()->user();
+
+        $comment = $post->comments()->create([
+            'user_id' => $user->id,
+            'comment' => $request->comment,
+        ]);
+
+        return response()->json([
+            'message' => 'Comment added successfully',
+            'comment' => $comment
+        ], 201);
+    }
+
+    public function toggleLikeComment($commentId)
+    {
+        $user = auth()->user();
+        $comment = Comment::findOrFail($commentId);
+
+        if ($user->likedComments()->where('comment_id', $comment->id)->exists()) {
+            $user->likedComments()->detach($comment);
+            return response()->json(['message' => 'Unliked the comment']);
+        } else {
+            $user->likedComments()->attach($comment);
+            return response()->json(['message' => 'Liked the comment']);
+        }
     }
 
 }
